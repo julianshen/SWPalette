@@ -21,6 +21,34 @@ internal let DEFAULT_CALCULATE_NUMBER_COLORS = 16
 let COLOR_WHITE:UInt32 = 0xffffffff
 let COLOR_BLACK:UInt32 = 0xff000000
 
+/**
+   A helper class to extract prominent colors from an image.
+
+   A number of colors with different profiles are extracted from the image:
+
+     - Vibrant
+     - Vibrant Dark
+     - Vibrant Light
+     - Muted
+     - Muted Dark
+     - Muted Light
+
+   These can be retrieved from the appropriate getter method.
+
+   Generation should always be completed on a background thread, ideally the one in
+   which you load your image on. Supports both synchronous and asynchronous
+   generation:
+
+    var image:UIImage
+    // Synchronous
+    let p:SWPalette = image.swp_generatePalette()
+
+    // Asynchronous
+    image.swp_generatePaletteAsync() {
+        // Use $0 as generated instance 
+    });
+
+*/
 public class SWPalette {
     private var mGenerator: PaletteGenerator
     private var mSwatches: [Swatch]

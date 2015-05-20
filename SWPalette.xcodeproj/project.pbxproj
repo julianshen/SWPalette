@@ -17,6 +17,7 @@
 		B95E7FDC1B0B3BEE004BE273 /* Generator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95E7FD51B0B3BEE004BE273 /* Generator.swift */; };
 		B95E7FDD1B0B3BEE004BE273 /* ImageUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95E7FD61B0B3BEE004BE273 /* ImageUtils.swift */; };
 		B95E7FDE1B0B3BEE004BE273 /* SimplePriorityQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95E7FD71B0B3BEE004BE273 /* SimplePriorityQueue.swift */; };
+		B95E7FF81B0C3D75004BE273 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = B95E7FF71B0C3D75004BE273 /* LICENSE */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +44,7 @@
 		B95E7FD51B0B3BEE004BE273 /* Generator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Generator.swift; sourceTree = "<group>"; };
 		B95E7FD61B0B3BEE004BE273 /* ImageUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageUtils.swift; sourceTree = "<group>"; };
 		B95E7FD71B0B3BEE004BE273 /* SimplePriorityQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimplePriorityQueue.swift; sourceTree = "<group>"; };
+		B95E7FF71B0C3D75004BE273 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,6 +69,7 @@
 		B95E7F7D1B0B39DE004BE273 = {
 			isa = PBXGroup;
 			children = (
+				B95E7FF71B0C3D75004BE273 /* LICENSE */,
 				B95E7F891B0B39DE004BE273 /* SWPalette */,
 				B95E7F961B0B39DE004BE273 /* SWPaletteTests */,
 				B95E7F881B0B39DE004BE273 /* Products */,
@@ -213,6 +216,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B95E7FF81B0C3D75004BE273 /* LICENSE in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
