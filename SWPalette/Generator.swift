@@ -38,8 +38,8 @@ internal func weightedMean(values:Float...) -> Float {
     
     let sums = indexes.filter {
         $0 % 2 == 0
-    }.reduce([0.0, 0.0]) {
-        [$0[0] + values[$1] * values[$1 + 1] , $0[1] + values[$1 + 1]] //[sum, sumWeight]
+        }.reduce([0.0, 0.0]) {
+            [$0[0] + values[$1] * values[$1 + 1] , $0[1] + values[$1 + 1]] //[sum, sumWeight]
     }
     
     return sums[0]/sums[1] //sum / sumWeight
@@ -128,12 +128,14 @@ internal class PaletteGenerator {
                 let aa = hack_great_equal_than(sat, minSaturation) && hack_less_equal_than(sat, maxSaturation)
                 let bb = hack_great_equal_than(luma, minLuma) && hack_less_equal_than(luma, maxLuma)
                 
+                let aaa = hack_great_equal_than(sat, minSaturation)
+                let aa1 = hack_less_equal_than(sat, maxSaturation)
                 
                 if (hack_great_equal_than(sat, minSaturation) && hack_less_equal_than(sat, maxSaturation) &&
                     hack_great_equal_than(luma, minLuma) && hack_less_equal_than(luma, maxLuma) &&
                     !isAlreadySelected(swatch)) {
                         let value = createComparisonValue(sat, targetSaturation, WEIGHT_SATURATION, luma, targetLuma, WEIGHT_LUMA, swatch.population, mHighestPopulation!, WEIGHT_POPULATION)
-
+                        
                         if (max == nil || value > maxValue) {
                             max = swatch;
                             maxValue = value;
@@ -141,7 +143,6 @@ internal class PaletteGenerator {
                 }
             }
         }
-
         
         return max
     }
@@ -181,12 +182,23 @@ internal class PaletteGenerator {
                 mDarkVibrantSwatch = Swatch(rgb: HSLToColor(newHsl), population: 0);
             }
         }
+        
+        // Android version does not have this part. Add this just in case
+        if mLightVibrantSwatch == nil {
+            // If we do not have a light vibrant color...
+            if let mVibrantSwatch = mVibrantSwatch {
+                // ...but we do have a vibrant, generate the value by modifying the luma
+                var newHsl = copyHslValues(mVibrantSwatch);
+                newHsl[2] = TARGET_LIGHT_LUMA;
+                mLightVibrantSwatch = Swatch(rgb: HSLToColor(newHsl), population: 0);
+            }
+        }
     }
     
     func generate(swatches:[Swatch]) {
         mSwatches = swatches
         mHighestPopulation = findMaxPopulation()
- 
+        
         generateVariationColors()
         
         // Now try and generate any missing colors

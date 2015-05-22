@@ -5,6 +5,7 @@
 //  Copyright (c) 2015 cowbay.wtf. All rights reserved.
 //
 
+
 import Foundation
 import CoreGraphics
 
@@ -52,7 +53,7 @@ internal func getARGBBitmapPixels(image: CGImageRef) -> [UInt32] {
     var bitmapData: UnsafeMutablePointer<Void>
     var bitmapByteCount: Int
     var bytesPerRow: Int
-
+    
     let width = CGImageGetWidth(image)
     let height = CGImageGetHeight(image)
     
@@ -67,7 +68,7 @@ internal func getARGBBitmapPixels(image: CGImageRef) -> [UInt32] {
     
     assert(bitmapData != nil, "Memory not allocated!")
     
-    context = CGBitmapContextCreate (bitmapData, width, height, 8, bytesPerRow, colorspace, CGBitmapInfo(CGImageAlphaInfo.PremultipliedLast.rawValue))
+    context = CGBitmapContextCreate (bitmapData, width, height, 8, bytesPerRow, colorspace, CGBitmapInfo(CGImageAlphaInfo.PremultipliedFirst.rawValue))
     
     assert(context != nil, "Context not created!")
     
@@ -75,7 +76,7 @@ internal func getARGBBitmapPixels(image: CGImageRef) -> [UInt32] {
     let data = CGBitmapContextGetData(context)
     
     let intData = UnsafeMutablePointer<UInt32>(data)
-    let intArray = Array(UnsafeBufferPointer(start: intData, count: bitmapByteCount))
+    let intArray = Array(UnsafeBufferPointer(start: intData, count: bitmapByteCount/4))
     
     return intArray
 }

@@ -22,22 +22,22 @@ let COLOR_WHITE:UInt32 = 0xffffffff
 let COLOR_BLACK:UInt32 = 0xff000000
 
 /**
-   A helper class to extract prominent colors from an image.
+    A helper class to extract prominent colors from an image.
 
-   A number of colors with different profiles are extracted from the image:
+    A number of colors with different profiles are extracted from the image:
 
-     - Vibrant
-     - Vibrant Dark
-     - Vibrant Light
-     - Muted
-     - Muted Dark
-     - Muted Light
+        - Vibrant
+        - Vibrant Dark
+        - Vibrant Light
+        - Muted
+        - Muted Dark
+        - Muted Light
 
-   These can be retrieved from the appropriate getter method.
+    These can be retrieved from the appropriate getter method.
 
-   Generation should always be completed on a background thread, ideally the one in
-   which you load your image on. Supports both synchronous and asynchronous
-   generation:
+    Generation should always be completed on a background thread, ideally the one in
+which you load your image on. Supports both synchronous and asynchronous
+    generation:
 
     var image:UIImage
     // Synchronous
@@ -45,7 +45,7 @@ let COLOR_BLACK:UInt32 = 0xff000000
 
     // Asynchronous
     image.swp_generatePaletteAsync() {
-        // Use $0 as generated instance 
+        // Use $0 as generated instance
     });
 
 */
@@ -136,11 +136,11 @@ public class Swatch: Hashable {
         var __hsl = [Float](count: 3, repeatedValue: 0.0)
         RGBToHSL(self.mRed, self.mGreen, self.mBlue, &__hsl)
         return __hsl
-    }()
-
+        }()
+    
     
     let rgb:UInt32
-    public let population:Int
+    let population:Int
     
     
     public var hsl:[Float] {
@@ -152,25 +152,21 @@ public class Swatch: Hashable {
     public var titleTextColor:UIColor {
         get {
             ensureTextColorsGenerated()
-            
-            var hsl = [Float](count: 3, repeatedValue: 0.0)
-            colorToHSL(self.mTitleTextColor, &hsl)
-            return UIColor(hue: CGFloat(hsl[0]), saturation: CGFloat(hsl[1]), brightness: CGFloat(hsl[2]), alpha: 1.0)
+            let color = self.mBodyTextColor
+            return UIColor(red: CGFloat(Float(red(color))/255.0), green: CGFloat(Float(green(color))/255.0), blue: CGFloat(Float(blue(color))/255.0), alpha: 1.0)
         }
     }
     
     public var bodyTextColor:UIColor {
         get {
             ensureTextColorsGenerated()
-            var hsl = [Float](count: 3, repeatedValue: 0.0)
-            colorToHSL(self.mBodyTextColor, &hsl)
-            return UIColor(hue: CGFloat(hsl[0]), saturation: CGFloat(hsl[1]), brightness: CGFloat(hsl[2]), alpha: 1.0)
+            let color = self.mBodyTextColor
+            return UIColor(red: CGFloat(Float(red(color))/255.0), green: CGFloat(Float(green(color))/255.0), blue: CGFloat(Float(blue(color))/255.0), alpha: 1.0)
         }
     }
     
     public var color:UIColor {
-        let hsl = self.hsl
-        return UIColor(hue: CGFloat(hsl[0]), saturation: CGFloat(hsl[1]), brightness: CGFloat(hsl[2]), alpha: 1.0)
+        return UIColor(red: CGFloat(Float(mRed)/255.0), green: CGFloat(Float(mGreen)/255.0), blue: CGFloat(Float(mBlue)/255.0), alpha: 1.0)
     }
     
     public var hashValue: Int {
@@ -242,12 +238,14 @@ internal class Builder {
     private var mMaxColors = DEFAULT_CALCULATE_NUMBER_COLORS
     private var mResizeMaxDimension = DEFAULT_RESIZE_BITMAP_MAX_DIMENSION
     
-    init(bitmap: CGImageRef) {
+    init(bitmap: CGImageRef, maxColors:Int = DEFAULT_CALCULATE_NUMBER_COLORS) {
         mBitmap = bitmap
+        mMaxColors = maxColors
     }
     
-    init(swatches:[Swatch]) {
+    init(swatches:[Swatch], maxColors:Int = DEFAULT_CALCULATE_NUMBER_COLORS) {
         mSwatches = swatches
+        mMaxColors = maxColors
     }
     
     func generate() -> SWPalette {
@@ -271,7 +269,7 @@ internal class Builder {
     }
 }
 
-func buildPaletteFrom(bitmap: CGImageRef) -> SWPalette {
-    let builder = Builder(bitmap: bitmap)
+func buildPaletteFrom(bitmap: CGImageRef, maxColors:Int = DEFAULT_CALCULATE_NUMBER_COLORS) -> SWPalette {
+    let builder = Builder(bitmap: bitmap, maxColors: maxColors)
     return builder.generate()
 }

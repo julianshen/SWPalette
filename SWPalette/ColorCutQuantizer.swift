@@ -21,8 +21,7 @@ func createColorCutQuantizerFromImage(image: CGImageRef, maxColors: Int) -> Colo
 }
 
 class ColorHistorgram {
-    private var mColors: [UInt32]
-    private var mColorCounts: [Int]
+    var histogram:[UInt32: Int] = [UInt32: Int]()
     private var mNumberColors: Int = 0
     
     var numColors: Int {
@@ -30,22 +29,20 @@ class ColorHistorgram {
     }
     
     var colors: [UInt32] {
-        return mColors
-    }
-    
-    var colorCounts: [Int] {
-        return mColorCounts
+        return Array(histogram.keys)
     }
     
     init(var pixels: [UInt32]) {
-        // Create arrays
-        mColors = [UInt32]()
-        mColorCounts = [Int]()
-        
         countFrequencies(pixels)
         
         // Count number of distinct colors
-        mNumberColors = mColors.count
+        mNumberColors = count(histogram.keys)
+        
+        //check pixels
+        let sumOfPixels = histogram.keys.array.reduce(0, combine: {
+            sum, i in
+            return sum + histogram[i]!
+        })
     }
     
     private func countFrequencies(let pixels: [UInt32]) {
@@ -54,19 +51,14 @@ class ColorHistorgram {
         }
         
         // Now iterate from the second pixel to the end, population distinct colors
-        var histogram:[UInt32: Int] = [UInt32: Int]()
+        
         for pixel in pixels {
-            if let count = histogram[pixel] {
-                histogram[pixel] = count + 1
+            if let _ = histogram[pixel] {
+                histogram[pixel]?++
             } else {
                 histogram[pixel] = 1
             }
         }
-        
-        mColors.extend(sorted(histogram.keys))
-        mColorCounts.extend(mColors.map {
-            return histogram[$0] ?? 0
-        })
     }
 }
 
@@ -84,6 +76,7 @@ class ColorCutQuantizer {
         var pq = PriorityQueue<VBox>(>)
         pq.offer(VBox(quantizer: self, lowerIndex: 0, upperIndex: maxColorIndex))
         splitBoxes(&pq, maxSize: maxColors)
+        
         return generateAverageColors(pq.data);
     }
     
@@ -117,15 +110,9 @@ class ColorCutQuantizer {
     }
     
     private init(colorHistorgram: ColorHistorgram, maxColors: Int) {
-        let rawColorCount = colorHistorgram.numColors
-        let rawColors = colorHistorgram.colors
-        let rawColorCounts = colorHistorgram.colorCounts
+        let rawColors = sorted(colorHistorgram.colors)
         
-        // First, lets pack the populations into a SparseIntArray so that they can be easily
-        // retrieved without knowing a color's index
-        for (var i = 0; i < rawColors.count; i++) {
-            mColorPopulations[rawColors[i]] = rawColorCounts[i]
-        }
+        mColorPopulations = colorHistorgram.histogram
         
         mColors = [UInt32]()
         
@@ -141,7 +128,7 @@ class ColorCutQuantizer {
         
         if validColorCount <= maxColors {
             for color in mColors {
-                mQuantizedColors.append(Swatch(rgb: color, population: mColorPopulations[color] ?? 0))
+                mQuantizedColors.append(Swatch(rgb: color, population: mColorPopulations[color] ?? 1))
             }
         } else {
             mQuantizedColors.extend(self.quantizePixels(validColorCount - 1, maxColors: maxColors))
@@ -172,33 +159,35 @@ class ColorCutQuantizer {
             return mUpperIndex - mLowerIndex + 1
         }
         
-        var longestColorDimension:Int {
+        var longestColorDimension:ColorComponent {
             let redLength = mMaxRed - mMinRed;
-            let greenLength = mMaxGreen - mMinGreen;
-            let blueLength = mMaxBlue - mMinBlue;
-            if redLength >= greenLength && redLength >= blueLength {
-                return ColorComponent.COMPONENT_RED.rawValue;
-            } else if greenLength >= redLength && greenLength >= blueLength {
-                return ColorComponent.COMPONENT_GREEN.rawValue;
+            let greenLength = mMaxGreen - mMinGreen
+            let blueLength = mMaxBlue - mMinBlue
+            let maxLength = max(redLength, greenLength, blueLength)
+            
+            if redLength == maxLength {
+                return ColorComponent.COMPONENT_RED;
+            } else if greenLength == maxLength {
+                return ColorComponent.COMPONENT_GREEN;
             } else {
-                return ColorComponent.COMPONENT_BLUE.rawValue;
+                return ColorComponent.COMPONENT_BLUE;
             }
         }
         
         var averageColor:Swatch {
-            var redSum = 0
-            var greenSum = 0
-            var blueSum = 0
-            var totalPopulation = 0
+            var redSum:Int = 0
+            var greenSum:Int = 0
+            var blueSum:Int = 0
+            var totalPopulation:Int = 0
             
             for i in mLowerIndex...mUpperIndex {
                 let color = mCCQ.mColors[i]
-                let colorPopulation = mCCQ.mColorPopulations[color] ?? 0
-                
-                totalPopulation += colorPopulation
-                redSum += colorPopulation * Int(red(color))
-                greenSum += colorPopulation * Int(green(color))
-                blueSum += colorPopulation * Int(blue(color))
+                if let colorPopulation = mCCQ.mColorPopulations[color] {
+                    totalPopulation += colorPopulation
+                    redSum += colorPopulation * Int(red(color))
+                    greenSum += colorPopulation * Int(green(color))
+                    blueSum += colorPopulation * Int(blue(color))
+                }
             }
             
             let redAverage = round(Float(redSum) / Float(totalPopulation))
@@ -219,110 +208,133 @@ class ColorCutQuantizer {
         private func fitBox() {
             (mMinRed, mMinBlue, mMinGreen) = (0xFF, 0xFF, 0xFF)
             (mMaxRed, mMaxBlue, mMaxGreen) = (0x0, 0x0, 0x0)
-            let calls = NSThread.callStackSymbols()
-            assert(mLowerIndex <= mUpperIndex, "\(mLowerIndex) > \(mUpperIndex): \(calls)")
             
-            for i in mLowerIndex...mUpperIndex {
-                let color = mCCQ.mColors[i]
-                
-                let r = red(color)
-                let g = green(color)
-                let b = blue(color)
-                
-                if r > mMaxRed {
-                    mMaxRed = r
-                }
-                
-                if r < mMinRed {
-                    mMinRed = r
-                }
-                
-                if g > mMaxGreen {
-                    mMaxGreen = g
-                }
-                
-                if g < mMinGreen {
-                    mMinGreen = g
-                }
-                
-                if b > mMaxBlue {
-                    mMaxBlue = b
-                }
-                
-                if b < mMinBlue {
-                    mMinBlue = b
-                }
+            assert(mLowerIndex <= mUpperIndex, "\(mLowerIndex) > \(mUpperIndex)")
+            
+            let reds = Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map() {
+                return red($0)
+                })
+            
+            let greens = Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map() {
+                return green($0)
+                })
+            
+            let blues = Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map() {
+                return blue($0)
+                })
+            
+            mMaxRed = reds.reduce(0) {
+                return $0 < $1 ? $1:$0
+            }
+            
+            mMinRed = reds.reduce(0xFF) {
+                return $0 < $1 ? $0:$1
+            }
+            
+            mMaxBlue = blues.reduce(0) {
+                return $0 < $1 ? $1:$0
+            }
+            
+            mMinBlue = blues.reduce(0xFF) {
+                return $0 < $1 ? $0:$1
+            }
+            
+            mMaxGreen = greens.reduce(0) {
+                return $0 < $1 ? $1:$0
+            }
+            
+            mMinGreen = greens.reduce(0xFF) {
+                return $0 < $1 ? $0:$1
             }
         }
         
-        func modifySignificantOctet(var colors: [UInt32], dimension:Int) -> [UInt32] {
-            let d:ColorComponent = ColorComponent(rawValue: dimension)!
-            switch d {
-                case .COMPONENT_RED:
-                    // Already in RGB, no need to do anything
-                    break
-                case .COMPONENT_GREEN:
-                    // We need to do a RGB to GRB swap, or vice-versa
-                    colors = colors.map {
-                        return toArgb(alpha($0), green($0), red($0), blue($0))
-                    }
-                case .COMPONENT_BLUE:
-                    // We need to do a RGB to BGR swap, or vice-versa
-                    colors = colors.map {
-                        return toArgb(alpha($0), blue($0), green($0), red($0))
-                    }
-                default:
-                    //Do nothing
-                    break
+        func modifySignificantOctet(var colors: [UInt32], dimension:ColorComponent) -> [UInt32] {
+            switch dimension {
+            case .COMPONENT_RED:
+                // Already in RGB, no need to do anything
+                break
+            case .COMPONENT_GREEN:
+                // We need to do a RGB to GRB swap, or vice-versa
+                colors = colors.map {
+                    return toArgb(alpha($0), green($0), red($0), blue($0))
+                }
+            case .COMPONENT_BLUE:
+                // We need to do a RGB to BGR swap, or vice-versa
+                colors = colors.map {
+                    return toArgb(alpha($0), blue($0), green($0), red($0))
+                }
+            default:
+                //Do nothing
+                break
             }
             
             return colors
         }
         
-        func midPoint(dimension:Int) -> UInt32 {
-            let d:ColorComponent = ColorComponent(rawValue: dimension)!
-            switch d {
-                case .COMPONENT_RED:
-                    return (mMinRed + mMaxRed) / 2
-                case .COMPONENT_GREEN:
-                    return (mMinGreen + mMaxGreen) / 2
-                case .COMPONENT_BLUE:
-                    return (mMinBlue + mMaxBlue) / 2
-                default:
-                    return (mMinRed + mMaxRed) / 2
+        
+        
+        func midPoint(dimension:ColorComponent) -> UInt32 {
+            switch dimension {
+            case .COMPONENT_RED:
+                return (mMinRed + mMaxRed) / 2
+            case .COMPONENT_GREEN:
+                return (mMinGreen + mMaxGreen) / 2
+            case .COMPONENT_BLUE:
+                return (mMinBlue + mMaxBlue) / 2
+            default:
+                return (mMinRed + mMaxRed) / 2
             }
         }
         
         func findSplitPoint() -> Int {
             let l = longestColorDimension
             
-            var sub = Array(mCCQ.mColors[mLowerIndex ... mUpperIndex])
-            
-            sub = modifySignificantOctet(sub, dimension: l)
-            sort(&sub)
-            sub = modifySignificantOctet(sub, dimension: l)
-            
-            mCCQ.mColors.replaceRange(mLowerIndex ... mUpperIndex, with: sub)
+            sort(&mCCQ.mColors[mLowerIndex...mUpperIndex], {
+                (var left:UInt32, var right:UInt32) -> Bool in
+                switch l {
+                case .COMPONENT_GREEN:
+                    // We need to do a RGB to GRB swap, or vice-versa
+                    left = toArgb(alpha(left), green(left), red(left), blue(left))
+                    right = toArgb(alpha(right), green(right), red(right), blue(right))
+                case .COMPONENT_BLUE:
+                    // We need to do a RGB to BGR swap, or vice-versa
+                    left = toArgb(alpha(left), blue(left), green(left), red(left))
+                    right = toArgb(alpha(right), blue(right), green(right), red(right))
+                default:
+                    break
+                }
+                
+                return left < right
+            })
             
             let dimensionMidPoint = midPoint(l)
             
-            for i in mLowerIndex...mUpperIndex {
-                let color = mCCQ.mColors[i]
-                
-                let d:ColorComponent = ColorComponent(rawValue: l)!
-                switch d {
-                    case .COMPONENT_RED:
-                        if red(color) >= dimensionMidPoint {
-                            return i
-                        }
-                    case .COMPONENT_GREEN:
-                        if green(color) >= dimensionMidPoint {
-                            return i
-                        }
-                    case .COMPONENT_BLUE:
-                        if blue(color) >= dimensionMidPoint {
-                            return i
-                        }
+            let a = mCCQ.mColors[mLowerIndex...mUpperIndex].map({ (color) -> UInt32 in
+                switch l {
+                case .COMPONENT_RED:
+                    return red(color)
+                case .COMPONENT_GREEN:
+                    return green(color)
+                case .COMPONENT_BLUE:
+                    return blue(color)
+                }
+                return 0
+            })
+            
+            for (i, color) in enumerate(mCCQ.mColors[mLowerIndex...mUpperIndex]) {
+                switch l {
+                case .COMPONENT_RED:
+                    if red(color) >= dimensionMidPoint {
+                        return i + mLowerIndex
+                    }
+                case .COMPONENT_GREEN:
+                    if green(color) >= dimensionMidPoint {
+                        return i + mLowerIndex
+                    }
+                case .COMPONENT_BLUE:
+                    if blue(color) >= dimensionMidPoint {
+                        return i + mLowerIndex
+                    }
                 }
             }
             
@@ -351,4 +363,5 @@ private func <(l:ColorCutQuantizer.VBox, r:ColorCutQuantizer.VBox) -> Bool {
 private func ==(l:ColorCutQuantizer.VBox, r:ColorCutQuantizer.VBox) -> Bool {
     return l.vloume == r.vloume
 }
+
 

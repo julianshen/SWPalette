@@ -4,54 +4,53 @@
 //
 //  Copyright (c) 2015 cowbay.wtf. All rights reserved.
 //
-
 import Foundation
 
 private let BLACK_MAX_LIGHTNESS:Float = 0.05
 private let WHITE_MIN_LIGHTNESS:Float = 0.95
 
 /**
-    Return the alpha component of a color int.
-    :param: color
-    :returns: alpha component of the color
+Return the alpha component of a color int.
+:param: color
+:returns: alpha component of the color
 */
 internal func alpha(color:UInt32) -> UInt32 {
-    return (color>>24) & 0xFF
+    return color & 0xFF
 }
 
 /**
-    Return the red component of a color int.
-    :param: color
-    :returns: red component of the color
+Return the red component of a color int.
+:param: color
+:returns: red component of the color
 */
 internal func red(color:UInt32) -> UInt32 {
-    return (color >> 16) & 0xFF
-}
-
-/**
-    Return the green component of a color int.
-    :param: color
-    :returns: green component of the color
-*/
-internal func green(color:UInt32) -> UInt32 {
     return (color >> 8) & 0xFF
 }
 
 /**
-    Return the blue component of a color int.
-    :param: color
-    :returns: blue component of the color
+Return the green component of a color int.
+:param: color
+:returns: green component of the color
+*/
+internal func green(color:UInt32) -> UInt32 {
+    return (color >> 16) & 0xFF
+}
+
+/**
+Return the blue component of a color int.
+:param: color
+:returns: blue component of the color
 */
 internal func blue(color:UInt32) -> UInt32 {
-    return color & 0xFF
+    return (color >> 24) & 0xFF
 }
 
 internal func toArgb(alpha: UInt32, red: UInt32, green: UInt32, blue: UInt32) -> UInt32 {
-    return (alpha << 24) | (red << 16) | (green << 8) | blue
+    return (blue << 24) | (green << 16) | (red << 8) | alpha
 }
 
 internal func toRGB(red:UInt32, green:UInt32, blue:UInt32) -> UInt32 {
-    return (0xFF << 24) | (red << 16) | (green << 8) | blue
+    return toArgb(0xFF, red, green, blue)
 }
 
 internal func RGBToHSL(r:UInt32, g:UInt32, b:UInt32, inout hsl:[Float]) {
@@ -107,34 +106,34 @@ internal func HSLToColor(hsl:[Float]) -> UInt32 {
     var b:UInt32 = 0
     
     switch(hueSegment) {
-        case 0:
-            r = UInt32(round(255 * (c + m)))
-            g = UInt32(round(255 * (x + m)))
-            b = UInt32(round(255 * m))
-        case 1:
-            r = UInt32(round(255 * (x + m)))
-            g = UInt32(round(255 * (c + m)))
-            b = UInt32(round(255 * m))
-        case 2:
-            r = UInt32(round(255 * m))
-            g = UInt32(round(255 * (c + m)))
-            b = UInt32(round(255 * (x + m)))
-        case 3:
-            r = UInt32(round(255 * m))
-            g = UInt32(round(255 * (x + m)))
-            b = UInt32(round(255 * (c + m)))
-        case 4:
-            r = UInt32(round(255 * (x + m)))
-            g = UInt32(round(255 * m))
-            b = UInt32(round(255 * (c + m)))
-        case 5, 6:
-            r = UInt32(round(255 * (c + m)))
-            g = UInt32(round(255 * m))
-            b = UInt32(round(255 * (x + m)))
-        default:
-            r = 0
-            g = 0
-            b = 0
+    case 0:
+        r = UInt32(round(255 * (c + m)))
+        g = UInt32(round(255 * (x + m)))
+        b = UInt32(round(255 * m))
+    case 1:
+        r = UInt32(round(255 * (x + m)))
+        g = UInt32(round(255 * (c + m)))
+        b = UInt32(round(255 * m))
+    case 2:
+        r = UInt32(round(255 * m))
+        g = UInt32(round(255 * (c + m)))
+        b = UInt32(round(255 * (x + m)))
+    case 3:
+        r = UInt32(round(255 * m))
+        g = UInt32(round(255 * (x + m)))
+        b = UInt32(round(255 * (c + m)))
+    case 4:
+        r = UInt32(round(255 * (x + m)))
+        g = UInt32(round(255 * m))
+        b = UInt32(round(255 * (c + m)))
+    case 5, 6:
+        r = UInt32(round(255 * (c + m)))
+        g = UInt32(round(255 * m))
+        b = UInt32(round(255 * (x + m)))
+    default:
+        r = 0
+        g = 0
+        b = 0
     }
     
     r = max(0, min(255, r));
@@ -146,7 +145,7 @@ internal func HSLToColor(hsl:[Float]) -> UInt32 {
 
 internal func setAlphaComponent(color:UInt32, alpha:UInt32) -> UInt32 {
     assert((alpha >= 0) && (alpha <= 255), "alpha must be between 0 and 255.")
-    return (color & 0x00ffffff) | (alpha << 24);
+    return (color & 0xffffff00) | alpha
 }
 
 internal func compositeColors(foreground:UInt32, background:UInt32) -> UInt32 {
@@ -225,7 +224,7 @@ internal func isWhite(hslColor:[Float]) -> Bool {
 }
 
 internal func isNearRedILine(hslColor:[Float]) -> Bool {
-     return hslColor[0] >= 10 && hslColor[0] <= 37 && hslColor[1] <= 0.82
+    return hack_great_equal_than(hslColor[0], 10) && hack_less_equal_than(hslColor[0], 37) && hack_less_equal_than(hslColor[1], 0.82)
 }
 
 internal func shouldIgnoreColor(hslColor: [Float]) -> Bool {
