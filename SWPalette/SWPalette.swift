@@ -57,28 +57,28 @@ public class SWPalette {
         return mSwatches
     }
     
-    public var vibrantSwatch:Swatch {
-        return mGenerator.mVibrantSwatch!
+    public var vibrantSwatch:Swatch? {
+        return mGenerator.mVibrantSwatch
     }
     
-    public var lightVibrantSwatch:Swatch {
-        return mGenerator.mLightVibrantSwatch!
+    public var lightVibrantSwatch:Swatch? {
+        return mGenerator.mLightVibrantSwatch
     }
     
-    public var darkVibrantSwatch: Swatch {
-        return mGenerator.mDarkVibrantSwatch!
+    public var darkVibrantSwatch: Swatch? {
+        return mGenerator.mDarkVibrantSwatch
     }
     
-    public var mutedSwatch: Swatch {
-        return mGenerator.mMutedSwatch!
+    public var mutedSwatch: Swatch? {
+        return mGenerator.mMutedSwatch
     }
     
-    public var lightMutedSwatch: Swatch {
-        return mGenerator.mLightMutedSwatch!
+    public var lightMutedSwatch: Swatch? {
+        return mGenerator.mLightMutedSwatch
     }
     
-    public var darkMutedSwatch: Swatch {
-        return mGenerator.mDarkMutedSwatch!
+    public var darkMutedSwatch: Swatch? {
+        return mGenerator.mDarkMutedSwatch
     }
     
     public func getVibrantColor(defaultColor:UInt32) -> UInt32 {
