@@ -8,11 +8,11 @@
 import UIKit
 
 public extension UIImage {
-    public func swpalette_generate(maxColors:Int = DEFAULT_CALCULATE_NUMBER_COLORS) -> SWPalette {
+    public func swp_generatePalette(maxColors:Int = DEFAULT_CALCULATE_NUMBER_COLORS) -> SWPalette {
         return buildPaletteFrom(self.CGImage, maxColors: maxColors)
     }
     
-    public func swpalette_generateAsync(maxColors:Int = DEFAULT_CALCULATE_NUMBER_COLORS, callback: (SWPalette) -> ()) {
+    public func swp_generatePaletteAsync(maxColors:Int = DEFAULT_CALCULATE_NUMBER_COLORS, callback: (SWPalette) -> ()) {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
             let palette = buildPaletteFrom(self.CGImage, maxColors: maxColors)
             
