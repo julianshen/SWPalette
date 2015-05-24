@@ -30,7 +30,9 @@ Here is an example:
 
 There are two kinds of colors you could use to apply to text. One is `titleTextColor` which is for title text. And another is `bodyTextColor`
 
-Extracting colors is a time comsuing task. You can also use the async version `swpalette_generateAsync` instead.
+Extracting colors is a time consuming task. You can also use the async version `swpalette_generateAsync` instead.
+
+**Note** This does not guarantee to generate all colors. Some colors might not be generated (depends on what kind of image you use). So you must check before you use it.  
 
 ## Installation
 
