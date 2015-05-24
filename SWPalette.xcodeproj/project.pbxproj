@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A07474231B120A29002ECD91 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = A07474221B120A29002ECD91 /* README.md */; };
 		B95E7F8D1B0B39DE004BE273 /* SWPalette.h in Headers */ = {isa = PBXBuildFile; fileRef = B95E7F8C1B0B39DE004BE273 /* SWPalette.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B95E7F931B0B39DE004BE273 /* SWPalette.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B95E7F871B0B39DE004BE273 /* SWPalette.framework */; };
 		B95E7F9A1B0B39DE004BE273 /* SWPaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95E7F991B0B39DE004BE273 /* SWPaletteTests.swift */; };
@@ -31,6 +32,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A07474221B120A29002ECD91 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B95E7F871B0B39DE004BE273 /* SWPalette.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SWPalette.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B95E7F8B1B0B39DE004BE273 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B95E7F8C1B0B39DE004BE273 /* SWPalette.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SWPalette.h; sourceTree = "<group>"; };
@@ -69,6 +71,7 @@
 		B95E7F7D1B0B39DE004BE273 = {
 			isa = PBXGroup;
 			children = (
+				A07474221B120A29002ECD91 /* README.md */,
 				B95E7FF71B0C3D75004BE273 /* LICENSE */,
 				B95E7F891B0B39DE004BE273 /* SWPalette */,
 				B95E7F961B0B39DE004BE273 /* SWPaletteTests */,
@@ -240,6 +243,7 @@
 				B95E7FDB1B0B3BEE004BE273 /* ColorUtils.swift in Sources */,
 				B95E7FDC1B0B3BEE004BE273 /* Generator.swift in Sources */,
 				B95E7FDE1B0B3BEE004BE273 /* SimplePriorityQueue.swift in Sources */,
+				A07474231B120A29002ECD91 /* README.md in Sources */,
 				B95E7FDD1B0B3BEE004BE273 /* ImageUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -434,6 +438,7 @@
 				B95E7F9F1B0B39DE004BE273 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B95E7FA01B0B39DE004BE273 /* Build configuration list for PBXNativeTarget "SWPaletteTests" */ = {
 			isa = XCConfigurationList;
@@ -442,6 +447,7 @@
 				B95E7FA21B0B39DE004BE273 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
