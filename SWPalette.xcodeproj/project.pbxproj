@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A07474231B120A29002ECD91 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = A07474221B120A29002ECD91 /* README.md */; };
 		B95E7F8D1B0B39DE004BE273 /* SWPalette.h in Headers */ = {isa = PBXBuildFile; fileRef = B95E7F8C1B0B39DE004BE273 /* SWPalette.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		B95E7F931B0B39DE004BE273 /* SWPalette.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B95E7F871B0B39DE004BE273 /* SWPalette.framework */; };
 		B95E7F9A1B0B39DE004BE273 /* SWPaletteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95E7F991B0B39DE004BE273 /* SWPaletteTests.swift */; };
@@ -47,6 +46,7 @@
 		B95E7FD61B0B3BEE004BE273 /* ImageUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageUtils.swift; sourceTree = "<group>"; };
 		B95E7FD71B0B3BEE004BE273 /* SimplePriorityQueue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimplePriorityQueue.swift; sourceTree = "<group>"; };
 		B95E7FF71B0C3D75004BE273 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		B9EE0E5F1BAC258E0080651E /* SWPalette.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SWPalette.framework; path = ../Carthage/Build/iOS/SWPalette.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +71,7 @@
 		B95E7F7D1B0B39DE004BE273 = {
 			isa = PBXGroup;
 			children = (
+				B9EE0E5F1BAC258E0080651E /* SWPalette.framework */,
 				A07474221B120A29002ECD91 /* README.md */,
 				B95E7FF71B0C3D75004BE273 /* LICENSE */,
 				B95E7F891B0B39DE004BE273 /* SWPalette */,
@@ -245,7 +246,6 @@
 				B95E7FDB1B0B3BEE004BE273 /* ColorUtils.swift in Sources */,
 				B95E7FDC1B0B3BEE004BE273 /* Generator.swift in Sources */,
 				B95E7FDE1B0B3BEE004BE273 /* SimplePriorityQueue.swift in Sources */,
-				A07474231B120A29002ECD91 /* README.md in Sources */,
 				B95E7FDD1B0B3BEE004BE273 /* ImageUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
