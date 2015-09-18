@@ -11,8 +11,8 @@ private let WHITE_MIN_LIGHTNESS:Float = 0.95
 
 /**
 Return the alpha component of a color int.
-:param: color
-:returns: alpha component of the color
+- parameter color:
+- returns: alpha component of the color
 */
 internal func alpha(color:UInt32) -> UInt32 {
     return color & 0xFF
@@ -20,8 +20,8 @@ internal func alpha(color:UInt32) -> UInt32 {
 
 /**
 Return the red component of a color int.
-:param: color
-:returns: red component of the color
+- parameter color:
+- returns: red component of the color
 */
 internal func red(color:UInt32) -> UInt32 {
     return (color >> 8) & 0xFF
@@ -29,8 +29,8 @@ internal func red(color:UInt32) -> UInt32 {
 
 /**
 Return the green component of a color int.
-:param: color
-:returns: green component of the color
+- parameter color:
+- returns: green component of the color
 */
 internal func green(color:UInt32) -> UInt32 {
     return (color >> 16) & 0xFF
@@ -38,8 +38,8 @@ internal func green(color:UInt32) -> UInt32 {
 
 /**
 Return the blue component of a color int.
-:param: color
-:returns: blue component of the color
+- parameter color:
+- returns: blue component of the color
 */
 internal func blue(color:UInt32) -> UInt32 {
     return (color >> 24) & 0xFF
@@ -50,7 +50,7 @@ internal func toArgb(alpha: UInt32, red: UInt32, green: UInt32, blue: UInt32) ->
 }
 
 internal func toRGB(red:UInt32, green:UInt32, blue:UInt32) -> UInt32 {
-    return toArgb(0xFF, red, green, blue)
+    return toArgb(0xFF, red: red, green: green, blue: blue)
 }
 
 internal func RGBToHSL(r:UInt32, g:UInt32, b:UInt32, inout hsl:[Float]) {
@@ -65,7 +65,7 @@ internal func RGBToHSL(r:UInt32, g:UInt32, b:UInt32, inout hsl:[Float]) {
     var h:Float
     var s:Float
     
-    var l = (mx + mn)/2
+    let l = (mx + mn)/2
     
     if mx == mn {
         // Monochromatic
@@ -87,7 +87,7 @@ internal func RGBToHSL(r:UInt32, g:UInt32, b:UInt32, inout hsl:[Float]) {
 }
 
 internal func colorToHSL(color: UInt32, inout hsl: [Float]) {
-    RGBToHSL(red(color), green(color), blue(color), &hsl)
+    RGBToHSL(red(color), g: green(color), b: blue(color), hsl: &hsl)
 }
 
 internal func HSLToColor(hsl:[Float]) -> UInt32 {
@@ -140,7 +140,7 @@ internal func HSLToColor(hsl:[Float]) -> UInt32 {
     g = max(0, min(255, g));
     b = max(0, min(255, b));
     
-    return toRGB(r, g, b)
+    return toRGB(r, green: g, blue: b)
 }
 
 internal func setAlphaComponent(color:UInt32, alpha:UInt32) -> UInt32 {
@@ -157,7 +157,7 @@ internal func compositeColors(foreground:UInt32, background:UInt32) -> UInt32 {
     let g = (Float(green(foreground)) * alpha1) + (Float(green(background)) * alpha2 * (1.0 - alpha1))
     let b = (Float(blue(foreground)) * alpha1) + (Float(blue(background)) * alpha2 * (1.0 - alpha1))
     
-    return toArgb(UInt32(a), UInt32(r), UInt32(g), UInt32(b))
+    return toArgb(UInt32(a), red: UInt32(r), green: UInt32(g), blue: UInt32(b))
 }
 
 internal func calculateLuminance(color:UInt32) -> Double {
@@ -177,7 +177,7 @@ internal func calculateContrast(var foreground:UInt32, background:UInt32) -> Dou
     assert(alpha(background) == 255, "background can not be translucent")
     
     if alpha(foreground) < 255 {
-        foreground = compositeColors(foreground, background);
+        foreground = compositeColors(foreground, background: background);
     }
     
     let luminance1:Double = calculateLuminance(foreground) + 0.05
@@ -189,8 +189,8 @@ internal func calculateContrast(var foreground:UInt32, background:UInt32) -> Dou
 internal func calculateMinimumAlpha(foreground:UInt32, background:UInt32, minContrastRatio:Double) -> (UInt32, Bool) {
     assert(alpha(background) == 255, "background can not be translucent")
     
-    var testForeground = setAlphaComponent(foreground, 255)
-    var testRatio = calculateContrast(testForeground, background)
+    var testForeground = setAlphaComponent(foreground, alpha: 255)
+    var testRatio = calculateContrast(testForeground, background: background)
     
     if testRatio < minContrastRatio {
         return (0, false)
@@ -202,8 +202,8 @@ internal func calculateMinimumAlpha(foreground:UInt32, background:UInt32, minCon
     
     while numIterations <= MIN_ALPHA_SEARCH_MAX_ITERATIONS && Int(maxAlpha - minAlpha) > MIN_ALPHA_SEARCH_PRECISION {
         let testAlpha:UInt32 = (minAlpha + maxAlpha) / 2;
-        testForeground = setAlphaComponent(foreground, testAlpha);
-        testRatio = calculateContrast(testForeground, background);
+        testForeground = setAlphaComponent(foreground, alpha: testAlpha);
+        testRatio = calculateContrast(testForeground, background: background);
         if testRatio < minContrastRatio {
             minAlpha = testAlpha;
         } else {
@@ -224,7 +224,7 @@ internal func isWhite(hslColor:[Float]) -> Bool {
 }
 
 internal func isNearRedILine(hslColor:[Float]) -> Bool {
-    return hack_great_equal_than(hslColor[0], 10) && hack_less_equal_than(hslColor[0], 37) && hack_less_equal_than(hslColor[1], 0.82)
+    return hack_great_equal_than(hslColor[0], right: 10) && hack_less_equal_than(hslColor[0], right: 37) && hack_less_equal_than(hslColor[1], right: 0.82)
 }
 
 internal func shouldIgnoreColor(hslColor: [Float]) -> Bool {
@@ -237,6 +237,6 @@ internal func shouldIgnoreColor(color: Swatch) -> Bool {
 
 internal func shouldIgnoreColor(color: UInt32) -> Bool {
     var hsl:[Float] = [Float](count: 3, repeatedValue: 0.0)
-    colorToHSL(color, &hsl)
+    colorToHSL(color, hsl: &hsl)
     return shouldIgnoreColor(hsl)
 }

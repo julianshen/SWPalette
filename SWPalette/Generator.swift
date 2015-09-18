@@ -47,14 +47,14 @@ internal func weightedMean(values:Float...) -> Float {
 
 internal func copyHslValues(color: Swatch) -> [Float] {
     var newHsl = [Float]()
-    newHsl.extend(color.hsl)
+    newHsl.appendContentsOf(color.hsl)
     return newHsl
 }
 
 internal func createComparisonValue(saturation:Float, targetSaturation: Float, saturationWeight: Float, luma: Float, targetLuma:Float, lumaWeight:Float, population:Int, maxPopulation: Int, populationWeight: Float) -> Float {
     return weightedMean(
-        invertDiff(saturation, targetSaturation), saturationWeight,
-        invertDiff(luma, targetLuma), lumaWeight,
+        invertDiff(saturation, targetValue: targetSaturation), saturationWeight,
+        invertDiff(luma, targetValue: targetLuma), lumaWeight,
         Float(population) / Float(maxPopulation), populationWeight
     )
 }
@@ -64,7 +64,7 @@ internal func hack_less_equal_than(left:Float, right:Float) -> Bool {
         return true
     }
     
-    return hack_equal_than(left, right)
+    return hack_equal_than(left, right: right)
 }
 
 internal func hack_great_equal_than(left:Float, right:Float) -> Bool {
@@ -72,7 +72,7 @@ internal func hack_great_equal_than(left:Float, right:Float) -> Bool {
         return true
     }
     
-    return hack_equal_than(left, right)
+    return hack_equal_than(left, right: right)
 }
 
 internal func hack_equal_than(left:Float, right:Float) -> Bool {
@@ -123,18 +123,18 @@ internal class PaletteGenerator {
                 let sat = swatch.hsl[1]
                 let luma = swatch.hsl[2]
                 
-                let ab = hack_great_equal_than(sat, minSaturation) && hack_less_equal_than(sat, maxSaturation) &&
-                    hack_great_equal_than(luma, minLuma) && hack_less_equal_than(luma, maxLuma)
-                let aa = hack_great_equal_than(sat, minSaturation) && hack_less_equal_than(sat, maxSaturation)
-                let bb = hack_great_equal_than(luma, minLuma) && hack_less_equal_than(luma, maxLuma)
+                let ab = hack_great_equal_than(sat, right: minSaturation) && hack_less_equal_than(sat, right: maxSaturation) &&
+                    hack_great_equal_than(luma, right: minLuma) && hack_less_equal_than(luma, right: maxLuma)
+                let aa = hack_great_equal_than(sat, right: minSaturation) && hack_less_equal_than(sat, right: maxSaturation)
+                let bb = hack_great_equal_than(luma, right: minLuma) && hack_less_equal_than(luma, right: maxLuma)
                 
-                let aaa = hack_great_equal_than(sat, minSaturation)
-                let aa1 = hack_less_equal_than(sat, maxSaturation)
+                let aaa = hack_great_equal_than(sat, right: minSaturation)
+                let aa1 = hack_less_equal_than(sat, right: maxSaturation)
                 
-                if (hack_great_equal_than(sat, minSaturation) && hack_less_equal_than(sat, maxSaturation) &&
-                    hack_great_equal_than(luma, minLuma) && hack_less_equal_than(luma, maxLuma) &&
+                if (hack_great_equal_than(sat, right: minSaturation) && hack_less_equal_than(sat, right: maxSaturation) &&
+                    hack_great_equal_than(luma, right: minLuma) && hack_less_equal_than(luma, right: maxLuma) &&
                     !isAlreadySelected(swatch)) {
-                        let value = createComparisonValue(sat, targetSaturation, WEIGHT_SATURATION, luma, targetLuma, WEIGHT_LUMA, swatch.population, mHighestPopulation!, WEIGHT_POPULATION)
+                        let value = createComparisonValue(sat, targetSaturation: targetSaturation, saturationWeight: WEIGHT_SATURATION, luma: luma, targetLuma: targetLuma, lumaWeight: WEIGHT_LUMA, population: swatch.population, maxPopulation: mHighestPopulation!, populationWeight: WEIGHT_POPULATION)
                         
                         if (max == nil || value > maxValue) {
                             max = swatch;

@@ -32,17 +32,17 @@ class ColorHistorgram {
         return Array(histogram.keys)
     }
     
-    init(var pixels: [UInt32]) {
+    init(pixels: [UInt32]) {
         countFrequencies(pixels)
         
         // Count number of distinct colors
-        mNumberColors = count(histogram.keys)
+        mNumberColors = histogram.keys.count
         
         //check pixels
-        let sumOfPixels = histogram.keys.array.reduce(0, combine: {
+        /*let sumOfPixels = histogram.keys.array.reduce(0, combine: {
             sum, i in
             return sum + histogram[i]!
-        })
+        })*/
     }
     
     private func countFrequencies(let pixels: [UInt32]) {
@@ -110,7 +110,7 @@ class ColorCutQuantizer {
     }
     
     private init(colorHistorgram: ColorHistorgram, maxColors: Int) {
-        let rawColors = sorted(colorHistorgram.colors)
+        let rawColors = colorHistorgram.colors.sort()
         
         mColorPopulations = colorHistorgram.histogram
         
@@ -131,7 +131,7 @@ class ColorCutQuantizer {
                 mQuantizedColors.append(Swatch(rgb: color, population: mColorPopulations[color] ?? 1))
             }
         } else {
-            mQuantizedColors.extend(self.quantizePixels(validColorCount - 1, maxColors: maxColors))
+            mQuantizedColors.appendContentsOf(self.quantizePixels(validColorCount - 1, maxColors: maxColors))
         }
     }
     
@@ -211,17 +211,17 @@ class ColorCutQuantizer {
             
             assert(mLowerIndex <= mUpperIndex, "\(mLowerIndex) > \(mUpperIndex)")
             
-            let reds = Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map() {
+            let reds = Array(Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map() {
                 return red($0)
-                })
+                }))
             
-            let greens = Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map() {
+            let greens = Array(Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map() {
                 return green($0)
-                })
+                }))
             
-            let blues = Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map() {
+            let blues = Array(Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map() {
                 return blue($0)
-                })
+                }))
             
             mMaxRed = reds.reduce(0) {
                 return $0 < $1 ? $1:$0
@@ -256,12 +256,12 @@ class ColorCutQuantizer {
             case .COMPONENT_GREEN:
                 // We need to do a RGB to GRB swap, or vice-versa
                 colors = colors.map {
-                    return toArgb(alpha($0), green($0), red($0), blue($0))
+                    return toArgb(alpha($0), red: green($0), green: red($0), blue: blue($0))
                 }
             case .COMPONENT_BLUE:
                 // We need to do a RGB to BGR swap, or vice-versa
                 colors = colors.map {
-                    return toArgb(alpha($0), blue($0), green($0), red($0))
+                    return toArgb(alpha($0), red: blue($0), green: green($0), blue: red($0))
                 }
             default:
                 //Do nothing
@@ -289,27 +289,27 @@ class ColorCutQuantizer {
         func findSplitPoint() -> Int {
             let l = longestColorDimension
             
-            sort(&mCCQ.mColors[mLowerIndex...mUpperIndex], {
+            mCCQ.mColors[mLowerIndex...mUpperIndex].sortInPlace {
                 (var left:UInt32, var right:UInt32) -> Bool in
                 switch l {
                 case .COMPONENT_GREEN:
                     // We need to do a RGB to GRB swap, or vice-versa
-                    left = toArgb(alpha(left), green(left), red(left), blue(left))
-                    right = toArgb(alpha(right), green(right), red(right), blue(right))
+                    left = toArgb(alpha(left), red: green(left), green: red(left), blue: blue(left))
+                    right = toArgb(alpha(right), red: green(right), green: red(right), blue: blue(right))
                 case .COMPONENT_BLUE:
                     // We need to do a RGB to BGR swap, or vice-versa
-                    left = toArgb(alpha(left), blue(left), green(left), red(left))
-                    right = toArgb(alpha(right), blue(right), green(right), red(right))
+                    left = toArgb(alpha(left), red: blue(left), green: green(left), blue: red(left))
+                    right = toArgb(alpha(right), red: blue(right), green: green(right), blue: red(right))
                 default:
                     break
                 }
                 
                 return left < right
-            })
+            }
             
             let dimensionMidPoint = midPoint(l)
             
-            let a = mCCQ.mColors[mLowerIndex...mUpperIndex].map({ (color) -> UInt32 in
+            let a = Array(mCCQ.mColors[mLowerIndex...mUpperIndex].map({ (color) -> UInt32 in
                 switch l {
                 case .COMPONENT_RED:
                     return red(color)
@@ -319,9 +319,9 @@ class ColorCutQuantizer {
                     return blue(color)
                 }
                 return 0
-            })
+            }))
             
-            for (i, color) in enumerate(mCCQ.mColors[mLowerIndex...mUpperIndex]) {
+            for (i, color) in mCCQ.mColors[mLowerIndex...mUpperIndex].enumerate() {
                 switch l {
                 case .COMPONENT_RED:
                     if red(color) >= dimensionMidPoint {

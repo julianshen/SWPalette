@@ -134,7 +134,7 @@ public class Swatch: Hashable {
     
     private lazy var _hsl:[Float] = {
         var __hsl = [Float](count: 3, repeatedValue: 0.0)
-        RGBToHSL(self.mRed, self.mGreen, self.mBlue, &__hsl)
+        RGBToHSL(self.mRed, g: self.mGreen, b: self.mBlue, hsl: &__hsl)
         return __hsl
         }()
     
@@ -187,42 +187,42 @@ public class Swatch: Hashable {
         mRed = red
         mGreen = green
         mBlue = blue
-        rgb = toRGB(red, green, blue)
+        rgb = toRGB(red, green: green, blue: blue)
         self.population = population
     }
     
     private func ensureTextColorsGenerated() {
         if !mGeneratedTextColors {
             // First check white, as most colors will be dark
-            let (lightBodyAlpha, lightBodyAlphaCalculated) = calculateMinimumAlpha(COLOR_WHITE, rgb, MIN_CONTRAST_BODY_TEXT);
-            let (lightTitleAlpha, lightTitleAlphaCaulated) = calculateMinimumAlpha(COLOR_WHITE, rgb, MIN_CONTRAST_TITLE_TEXT);
+            let (lightBodyAlpha, lightBodyAlphaCalculated) = calculateMinimumAlpha(COLOR_WHITE, background: rgb, minContrastRatio: MIN_CONTRAST_BODY_TEXT);
+            let (lightTitleAlpha, lightTitleAlphaCaulated) = calculateMinimumAlpha(COLOR_WHITE, background: rgb, minContrastRatio: MIN_CONTRAST_TITLE_TEXT);
             
             if !lightBodyAlphaCalculated && !lightTitleAlphaCaulated {
                 // If we found valid light values, use them and return
-                mBodyTextColor = UInt32(setAlphaComponent(COLOR_WHITE, lightBodyAlpha));
-                mTitleTextColor = UInt32(setAlphaComponent(COLOR_WHITE, lightTitleAlpha));
+                mBodyTextColor = UInt32(setAlphaComponent(COLOR_WHITE, alpha: lightBodyAlpha));
+                mTitleTextColor = UInt32(setAlphaComponent(COLOR_WHITE, alpha: lightTitleAlpha));
                 mGeneratedTextColors = true;
                 return
             }
             
-            let (darkBodyAlpha, darkBodyAlphaCaculated) = calculateMinimumAlpha(COLOR_BLACK, rgb, MIN_CONTRAST_BODY_TEXT)
-            let (darkTitleAlpha, darkTitleAlphaCaculated) = calculateMinimumAlpha(COLOR_BLACK, rgb, MIN_CONTRAST_TITLE_TEXT)
+            let (darkBodyAlpha, darkBodyAlphaCaculated) = calculateMinimumAlpha(COLOR_BLACK, background: rgb, minContrastRatio: MIN_CONTRAST_BODY_TEXT)
+            let (darkTitleAlpha, darkTitleAlphaCaculated) = calculateMinimumAlpha(COLOR_BLACK, background: rgb, minContrastRatio: MIN_CONTRAST_TITLE_TEXT)
             
             if !darkBodyAlphaCaculated && !darkTitleAlphaCaculated {
                 // If we found valid dark values, use them and return
-                mBodyTextColor = UInt32(setAlphaComponent(COLOR_BLACK, UInt32(darkBodyAlpha)));
-                mTitleTextColor = UInt32(setAlphaComponent(COLOR_BLACK, UInt32(darkTitleAlpha)));
+                mBodyTextColor = UInt32(setAlphaComponent(COLOR_BLACK, alpha: UInt32(darkBodyAlpha)));
+                mTitleTextColor = UInt32(setAlphaComponent(COLOR_BLACK, alpha: UInt32(darkTitleAlpha)));
                 mGeneratedTextColors = true;
             }
             
             // If we reach here then we can not find title and body values which use the same
             // lightness, we need to use mismatched values
             mBodyTextColor = lightBodyAlphaCalculated
-                ? UInt32(setAlphaComponent(COLOR_WHITE, lightBodyAlpha))
-                : UInt32(setAlphaComponent(COLOR_BLACK, darkBodyAlpha))
+                ? UInt32(setAlphaComponent(COLOR_WHITE, alpha: lightBodyAlpha))
+                : UInt32(setAlphaComponent(COLOR_BLACK, alpha: darkBodyAlpha))
             mTitleTextColor = lightTitleAlphaCaulated
-                ? UInt32(setAlphaComponent(COLOR_WHITE, lightTitleAlpha))
-                : UInt32(setAlphaComponent(COLOR_BLACK, darkTitleAlpha))
+                ? UInt32(setAlphaComponent(COLOR_WHITE, alpha: lightTitleAlpha))
+                : UInt32(setAlphaComponent(COLOR_BLACK, alpha: darkTitleAlpha))
             mGeneratedTextColors = true;
         }
     }
@@ -253,8 +253,8 @@ internal class Builder {
         
         if let bitmap = mBitmap {
             assert(mResizeMaxDimension > 0)
-            let scaledBitmap = scaleBitmapDown(bitmap, mResizeMaxDimension)
-            let quantizer:ColorCutQuantizer = createColorCutQuantizerFromImage(scaledBitmap, mMaxColors)
+            let scaledBitmap = scaleBitmapDown(bitmap, targetMaxDimension: mResizeMaxDimension)
+            let quantizer:ColorCutQuantizer = createColorCutQuantizerFromImage(scaledBitmap, maxColors: mMaxColors)
             
             swatches = quantizer.quantizedColors
         } else {

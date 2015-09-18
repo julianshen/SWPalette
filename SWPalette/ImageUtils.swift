@@ -34,16 +34,16 @@ internal func scaleBitmapDown(image:CGImageRef, let targetMaxDimension:Int) -> C
     
     assert(bitmapData != nil, "Memory not allocated!")
     
-    var colorspace = CGImageGetColorSpace(image)
+    let colorspace = CGImageGetColorSpace(image)
     
-    context = CGBitmapContextCreate (bitmapData, width, height, 8, bytesPerRow, colorspace, CGBitmapInfo(CGImageAlphaInfo.NoneSkipFirst.rawValue))
+    context = CGBitmapContextCreate (bitmapData, width, height, 8, bytesPerRow, colorspace, CGImageAlphaInfo.NoneSkipFirst.rawValue)
     
     assert(context != nil)
     
     CGContextDrawImage(context, CGRectMake(CGFloat(0),CGFloat(0),CGFloat(width), CGFloat(height)), image)
     let newImgRef = CGBitmapContextCreateImage(context)
     
-    return newImgRef
+    return newImgRef!
 }
 
 internal func getARGBBitmapPixels(image: CGImageRef) -> [UInt32] {
@@ -62,13 +62,13 @@ internal func getARGBBitmapPixels(image: CGImageRef) -> [UInt32] {
     bitmapByteCount = bytesPerRow * height
     
     bitmapData = UnsafeMutablePointer<Void>.alloc(bitmapByteCount)
-    colorspace = CGColorSpaceCreateDeviceRGB()
+    colorspace = CGColorSpaceCreateDeviceRGB()!
     
     bitmapData = UnsafeMutablePointer<Void>.alloc(bitmapByteCount)
     
     assert(bitmapData != nil, "Memory not allocated!")
     
-    context = CGBitmapContextCreate (bitmapData, width, height, 8, bytesPerRow, colorspace, CGBitmapInfo(CGImageAlphaInfo.PremultipliedFirst.rawValue))
+    context = CGBitmapContextCreate (bitmapData, width, height, 8, bytesPerRow, colorspace, CGImageAlphaInfo.PremultipliedFirst.rawValue)
     
     assert(context != nil, "Context not created!")
     
