@@ -22,10 +22,9 @@ Here is an example:
     UIImage image
     let palette = image.swpalette_generate()
 
-    if let swatch = palette.lightMutedSwatch {
-      self.textView?.textColor = swatch.bodyTextColor
-      self.textView?.backgroundColor = swatch.color
-    }
+    if let swatch = palette.lightMutedSwatch 
+    self.textView?.textColor = swatch.bodyTextColor
+    self.textView?.backgroundColor = swatch.color
 ```
 
 There are two kinds of colors you could use to apply to text. One is `titleTextColor` which is for title text. And another is `bodyTextColor`
